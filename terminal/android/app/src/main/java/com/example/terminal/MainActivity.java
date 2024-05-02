@@ -1,4 +1,4 @@
-package com.example.cashmanager;
+package com.example.terminal;
 
 import com.getcapacitor.BridgeActivity;
 
