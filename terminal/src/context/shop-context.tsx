@@ -18,6 +18,7 @@ interface ShopContextType {
   addToCart: (itemId: number) => void;
   updateCartItemCount: (newAmount: number, itemId: number) => void;
   removeFromCart: (itemId: number) => void;
+  getTotalCartAmount: () => number;
   checkout: () => void;
 }
 
@@ -26,6 +27,7 @@ const defaultShopContext: ShopContextType = {
     addToCart: (_: number) => {},
     updateCartItemCount: (_: number, itemId: number) => {},
     removeFromCart: (_: number) => {},
+    getTotalCartAmount: () => 0,
     checkout: () => {}
 
 }
@@ -63,6 +65,19 @@ export const ShopContextProvider: React.FC<ShopContextProviderProps> = ({ childr
     setCartItems((prev) => ({ ...prev, [itemId]: newAmount }));
   };
 
+  const getTotalCartAmount = (): number => {
+    let totalAmount = 0;
+    for (const item in cartItems) {
+      if (cartItems[item] > 0) {
+        const itemInfo: Product | undefined = PRODUCTS.find((product) => product.id === Number(item));
+        if (itemInfo) {
+          totalAmount += cartItems[item] * itemInfo.price;
+        }
+      }
+    }
+    return totalAmount;
+  };
+
   const checkout = () => {
     setCartItems(getDefaultCart());
   };
@@ -72,6 +87,7 @@ export const ShopContextProvider: React.FC<ShopContextProviderProps> = ({ childr
     addToCart,
     updateCartItemCount,
     removeFromCart,
+    getTotalCartAmount,
     checkout,
   };
 
