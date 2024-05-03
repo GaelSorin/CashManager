@@ -8,7 +8,7 @@ import productSword from './assets/sword.png'
 import productGold from './assets/gold.png'
 
 
-export const PORDUCTS = [
+export const PRODUCTS = [
     {
         id: 1,
         productName: "Golden Skull",
