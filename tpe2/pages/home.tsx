@@ -6,10 +6,10 @@ export const Home = () => {
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Menu Principal</Text>
-      <Link to="/qrcode" style={styles.button}>
+      <Link to="/QRCode" style={styles.button}>
         <Text style={styles.buttonText}>QR Code</Text>
       </Link>
-      <Link to="/nfc" style={styles.button}>
+      <Link to="/NFC" style={styles.button}>
         <Text style={styles.buttonText}>NFC</Text>
       </Link>
     </View>
