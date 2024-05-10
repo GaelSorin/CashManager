@@ -1,14 +1,13 @@
-# phpmy admin
 version: "3.8"
 services:
   mysql-db:
     image: mariadb:10.5
     restart: always
     environment:
-      MYSQL_ROOT_PASSWORD: $MYSQL_ROOT_PASSWORD
-      MYSQL_DATABASE: $MYSQL_DATABASE
+      MYSQL_ROOT_PASSWORD: $MYSQL_ROOT_PW
+      MYSQL_DATABASE: $MYSQL_DB
       MYSQL_USER: $MYSQL_USER
-      MYSQL_PASSWORD: $MYSQL_PASSWORD
+      MYSQL_PASSWORD: $MYSQL_PW
     ports:
       - 3306:3306
   phpmyadmin:
@@ -18,15 +17,15 @@ services:
       - 8080:80
     environment:
       PMA_HOST: $MYSQLDB_HOST
-      MYSQL_ROOT_PASSWORD: $MYSQL_ROOT_PASSWORD
-  back:
-    build: ./back
+      MYSQL_ROOT_PASSWORD: $MYSQL_ROOT_PW
+  backend:
+    build: ./backend
     restart: always
     ports:
       - 8001:5000
     volumes:
-      - ./back/src:/app/src
-      - ./back/package.json:/app/package.json
-      - ./back/tsconfig.json:/app/tsconfig.json
+      - ./backend/src:/app/src
+      - ./backend/package.json:/app/package.json
+      - ./backend/tsconfig.json:/app/tsconfig.json
     depends_on:
       - mysql-db

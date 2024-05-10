@@ -1,0 +1,58 @@
+/* Styles de base pour les appareils de petite taille (mobile) */
+.login-container {
+    width: 90%; /* Utilise 90% de la largeur de l'écran */
+    margin: 50px auto; /* Centre l'élément horizontalement avec une marge en haut et en bas */
+    padding: 20px;
+    background-color: #2c3e50;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .login-header {
+    color: #fff;
+    text-align: center;
+    margin-bottom: 20px; /* Espacement entre le titre et le formulaire */
+  }
+  
+  .login-input {
+    width: 100%;
+    margin-bottom: 20px;
+  }
+  
+  .login-input label {
+    color: #fff;
+    display: block;
+    margin-bottom: 5px;
+  }
+  
+  .login-input input {
+    width: 100%;
+    padding: 10px;
+    border-radius: 5px;
+    border: none;
+  }
+  
+  .login-button {
+    width: 100%;
+    padding: 10px;
+    background-color: #244c5c;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+  
+  .login-button:hover {
+    background-color: #1c3e4f; /* Changement de couleur au survol inspiré de Sea of Thieves */
+  }
+  
+  /* Styles pour les appareils de taille moyenne et grande */
+  @media screen and (min-width: 768px) {
+    .login-container {
+      width: 400px; /* Largeur fixe pour les appareils de taille moyenne et grande */
+    }
+  }
+  

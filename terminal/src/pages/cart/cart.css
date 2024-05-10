@@ -1,43 +1,78 @@
-.cart {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-  }
-  
+/* For small screens */
+@media screen and (max-width: 768px) {
   .cartItem {
-    width: 700px;
-    height: 250px;
-    display: flex;
-  
-    align-items: center;
-    box-shadow: 0px 3px 15px rgba(0, 0, 0, 0.2);
-    border-radius: 25px;
-    margin: 30px;
+      width: 90%;
+      height: auto;
+      flex-direction: column;
   }
-  
+
   .cartItem img {
-    width: 200px;
+      width: 100%;
+      margin-bottom: 10px; /* Add space between image and description */
   }
-  
+
   .cartItem .description {
-    width: 100%;
-    font-size: 30px;
+      font-size: 20px;
+      text-align: center; /* Center the description text */
   }
-  
+
   .countHandler input {
-    width: 40px;
-    text-align: center;
-    font-weight: bolder;
+      width: 60px; /* Adjust input width for better usability */
   }
-  
-  .checkout button {
-    width: 150px;
-    height: 50px;
-    background-color: rgb(19, 19, 19);
-    color: white;
-    border: none;
-    border-radius: 8px;
-    margin: 10px;
-    cursor: pointer;
+}
+
+/* For medium-sized screens */
+@media screen and (min-width: 769px) and (max-width: 1024px) {
+  .cartItem {
+      width: 500px; /* Adjusted width for medium-sized screens */
   }
+}
+
+/* For large screens */
+@media screen and (min-width: 1025px) {
+  .cartItem {
+      width: 700px;
+  }
+}
+
+/* Common styles for all screen sizes */
+.cart {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.cartItem {
+  display: flex;
+  align-items: center;
+  box-shadow: 0px 3px 15px rgba(0, 0, 0, 0.2);
+  border-radius: 25px;
+  margin: 30px;
+}
+
+.cartItem img {
+  width: 200px;
+}
+
+.cartItem .description {
+  width: 100%;
+  font-size: 30px;
+}
+
+.countHandler input {
+  width: 40px;
+  text-align: center;
+  font-weight: bolder;
+}
+
+.checkout button {
+  width: 150px;
+  height: 50px;
+  background-color: #244c5c;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  margin: 10px;
+  cursor: pointer;
+}
