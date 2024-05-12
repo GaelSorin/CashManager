@@ -10,6 +10,10 @@ export const Cart = () => {
     const totalAmount = getTotalCartAmount();
     const navigate = useNavigate();
 
+    /*if (Cookies.get('token') == null) {
+        window.location.href = "/";
+    }*/
+
     return <div className="cart">
         <div> 
             <h1> Your Cart Items</h1>

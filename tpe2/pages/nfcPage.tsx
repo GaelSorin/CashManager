@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, Button, StyleSheet } from 'react-native';
 import NfcManager, { NfcTech } from 'react-native-nfc-manager';
+import { Link } from 'react-router-native';
 
 export const NFCReaderPage = () => {
   const [tagId, setTagId] = useState<string | null>(null); // Utilisation d'une chaîne de caractères pour stocker l'ID du tag
@@ -39,6 +40,9 @@ export const NFCReaderPage = () => {
           {/* Insérez ici d'autres informations que vous souhaitez afficher sur le tag */}
         </View>
       )}
+      <Link to="/" style={{ position: 'absolute', bottom: 20, left: 20 }}>
+        <Text style={{ fontSize: 24, color: 'blue' }}>{"Retour"}</Text>
+      </Link>
     </View>
   );
 };

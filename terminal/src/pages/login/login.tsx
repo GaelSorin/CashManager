@@ -2,16 +2,21 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { ShoppingCart } from "phosphor-react";
 import "./login.css"
+import { login } from "../../stores/authentification";
 
 export const Login = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
 
-    const handleLogin = (e: { preventDefault: () => void; }) => {
+    const handleLogin = async (e: { preventDefault: () => void; }) => {
     e.preventDefault();
 
-    // Mettez ici votre logique de gestion de la connexion
-    console.log('Connexion avec :', username, password);
+    const result = await login(username, password);
+            if (result.status === "ok") {
+              window.location.href = "/shop";
+            } else {
+              console.log("Erreur lors du login")
+            }
   };
     return <div className="login-container">
     <h1 className="login-header">Connect To Pirate Emporium</h1>
@@ -36,7 +41,7 @@ export const Login = () => {
           required
         />
       </div>
-      <button type="submit" className="login-button"><Link to={"/shop"}>Connect</Link></button>
+      <button type="submit" className="login-button" onClick={handleLogin}>Connect</button>
     </form>
   </div>
 }
