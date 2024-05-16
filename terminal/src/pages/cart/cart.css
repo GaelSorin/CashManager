@@ -37,6 +37,7 @@
 
 /* Common styles for all screen sizes */
 .cart {
+  font-family: 'Pirata One', cursive;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -61,12 +62,14 @@
 }
 
 .countHandler input {
+  font-family: 'Pirata One', cursive;
   width: 40px;
   text-align: center;
   font-weight: bolder;
 }
 
 .checkout button {
+  font-family: 'Pirata One', cursive;
   width: 150px;
   height: 50px;
   background-color: #244c5c;
@@ -76,3 +79,5 @@
   margin: 10px;
   cursor: pointer;
 }
+
+@import url('https://fonts.googleapis.com/css2?family=Pirata+One&display=swap');

@@ -29,3 +29,18 @@ export async function login(email:string, password:string): Promise<ReturnType> 
           return new ReturnType("error", error);
         });
 }
+
+export async function logout(): Promise<ReturnType> {
+  return await instance({
+    method: "post",
+    url: `${baseUrl}/auth/logout`,
+    withCredentials: true,
+  })
+    .then((response) => {
+      return new ReturnType("ok", response.data);
+    })
+    .catch((error) => {
+      // console.log(error);
+      return new ReturnType("error", error);
+  });
+}

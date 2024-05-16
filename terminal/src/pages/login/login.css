@@ -8,6 +8,8 @@
     display: flex;
     flex-direction: column;
     align-items: center;
+    font-family: 'Pirata One', cursive;
+
   }
   
   .login-header {
@@ -38,6 +40,7 @@
     width: 100%;
     padding: 10px;
     background-color: #244c5c;
+    font-family: 'Pirata One', cursive;
     color: #fff;
     border: none;
     border-radius: 5px;
@@ -55,4 +58,6 @@
       width: 400px; /* Largeur fixe pour les appareils de taille moyenne et grande */
     }
   }
+
+  @import url('https://fonts.googleapis.com/css2?family=Pirata+One&display=swap');
   
