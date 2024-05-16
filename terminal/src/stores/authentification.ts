@@ -44,3 +44,17 @@ export async function logout(): Promise<ReturnType> {
       return new ReturnType("error", error);
   });
 }
+
+export async function info(): Promise<ReturnType> {
+  return await instance({
+    method: "get",
+    url: `${baseUrl}/auth`,
+    withCredentials: true,
+  })
+    .then((response) => {
+      return new ReturnType("ok", response.data);
+    })
+    .catch((error) => {
+      return new ReturnType("error", error);
+    });
+}

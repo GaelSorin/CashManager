@@ -4,17 +4,28 @@ import { ShopContext } from "../../context/shop-context";
 import { CartItem } from "./cart-item";
 import './cart.css';
 import { useNavigate } from "react-router-dom";
+import { info } from "../../stores/authentification";
+import { Navbar } from "../../components/navbar";
 
 export const Cart = () => {
     const {cartItems, getTotalCartAmount} = useContext(ShopContext);
     const totalAmount = getTotalCartAmount();
     const navigate = useNavigate();
 
-    /*if (Cookies.get('token') == null) {
+
+    // Vérifie si connecté
+    const getInfos = async () => {
+        const result = await info();
+        if (result.status !== "ok" && window.location.pathname !== "/") {
         window.location.href = "/";
-    }*/
+        } else if (result.status === "ok" && window.location.pathname === "/") {
+        window.location.href = "/shop";
+        }
+    };
+    getInfos();
 
     return <div className="cart">
+        <Navbar/>
         <div> 
             <h1> Your Cart Items</h1>
         </div>
