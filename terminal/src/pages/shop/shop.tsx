@@ -1,35 +1,27 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { PRODUCTS } from "../../products";
 import { Product } from "./product";
 import "./shop.css"
-import Cookies from "js-cookie"
 import { Navbar } from '../../components/navbar';
 import { info } from "../../stores/authentification";
+import { getAllItems } from "../../stores/items";
+import { Item as ItemType, ItemListWithQuantity } from "../../models/item";
 
 export const Shop = () => {
+    const [items, setItems] = useState<ItemType[]>([]);
     
-    // Vérifie si connecté
-    const getInfos = async () => {
-        const result = await info();
-        if (result.status !== "ok" && window.location.pathname !== "/") {
-        window.location.href = "/";
-        } else if (result.status === "ok" && window.location.pathname === "/") {
-        window.location.href = "/shop";
+    const getItems = async () =>{
+        const result = await getAllItems();
+        if (result.status === "ok") {
+            console.log("ok item reçu")
+            setItems(result.data as ItemType[]);
+            console.log(items);
         }
-    };
-    getInfos();
-    
-    const tokenExists = document.cookie.split(';').some((item) => item.trim().startsWith('token='));
-    console.log(tokenExists);
-    // Si le cookie "token" n'existe pas, rediriger vers la page "/"
-    /*if (!tokenExists) {
-        window.location.href = "/";
-        return null; // Arrêter le rendu du composant
-    }*/
+    }
 
-    /*if (Cookies.get('token') == null) {
-        window.location.href = "/";
-    }*/
+    useEffect(() => {
+        getItems();
+    }, []);
 
     return <div className="shop">
         <Navbar/>
@@ -37,8 +29,8 @@ export const Shop = () => {
             <h1>Pirate Emporium</h1>
         </div>
         <div className="products">
-            {PRODUCTS.map((product)=> (
-            <Product data={product}/>
+            {items.map((item)=> (
+            <Product data={item}/>
             ))}
         </div>
     </div>;

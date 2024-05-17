@@ -1,18 +1,18 @@
 import React, { useContext, useEffect } from "react";
 import { ShopContext , CartItems } from "../../context/shop-context";
-export const Product: React.FC<{ data: { id: any; productName: any; price: any; productImage: any; }; }> = ({ data }) => {    
-    const { id, productName, price, productImage } = data;
+export const Product: React.FC<{ data: { id: any; name: any; price: any; image: any; }; }> = ({ data }) => {    
+    const { id, name, price, image } = data;
     
     // Add to cart
     const { addToCart, cartItems } = useContext(ShopContext);
-    const cartItemAmount = cartItems[id]
+    const cartItemAmount = cartItems[id];
 
     return( 
         <div className="product">
-            <img src={productImage} alt={productName} />
+            <img src={image} alt={name} />
             <div className="description">
                 <p>
-                    <b>{productName}</b>
+                    <b>{name}</b>
                 </p>
                 <p>{price} €</p>
             </div>

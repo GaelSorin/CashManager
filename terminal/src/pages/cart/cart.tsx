@@ -1,28 +1,42 @@
-import React, { useContext } from "react";
-import { PRODUCTS } from "../../products";
+import React, { useContext, useEffect, useState } from "react";
 import { ShopContext } from "../../context/shop-context";
 import { CartItem } from "./cart-item";
 import './cart.css';
 import { useNavigate } from "react-router-dom";
-import { info } from "../../stores/authentification";
 import { Navbar } from "../../components/navbar";
+import { Item as ItemType } from "../../models/item";
+import { getAllItems } from "../../stores/items";
 
 export const Cart = () => {
-    const {cartItems, getTotalCartAmount} = useContext(ShopContext);
-    const totalAmount = getTotalCartAmount();
+    const {cartItems} = useContext(ShopContext);
+    const [totalAmount, setTotalAmount] = useState<number>(0);
     const navigate = useNavigate();
+    const [items, setItems] = useState<ItemType[]>([]);
 
-
-    // Vérifie si connecté
-    const getInfos = async () => {
-        const result = await info();
-        if (result.status !== "ok" && window.location.pathname !== "/") {
-        window.location.href = "/";
-        } else if (result.status === "ok" && window.location.pathname === "/") {
-        window.location.href = "/shop";
+    const getItems = async () =>{
+        const result = await getAllItems();
+        if (result.status === "ok") {
+            setItems(result.data as ItemType[]);
         }
-    };
-    getInfos();
+    }
+
+    //Total de la somme
+    useEffect(() => {
+        let temp = 0;
+        items.forEach(item => {
+            if(cartItems[item.id] !== undefined){
+                temp += (item.price * cartItems[item.id]);
+            }
+            
+        });
+        setTotalAmount(temp)
+    }, [items, cartItems])
+
+    // Récupération des articles
+    useEffect(() => {
+        getItems();
+    }, []);
+    
 
     return <div className="cart">
         <Navbar/>
@@ -30,9 +44,9 @@ export const Cart = () => {
             <h1> Your Cart Items</h1>
         </div>
         <div className="cartItems">
-            {PRODUCTS.map((product) => {
-                if(cartItems[product.id] !== 0){
-                    return <CartItem data={product} />;
+            {items.map((item) => {
+                if(cartItems[item.id] !== undefined){
+                    return <CartItem data={item} />;
                 }
             })}
         </div>

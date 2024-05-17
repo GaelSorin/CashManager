@@ -40,7 +40,6 @@ export async function logout(): Promise<ReturnType> {
       return new ReturnType("ok", response.data);
     })
     .catch((error) => {
-      // console.log(error);
       return new ReturnType("error", error);
   });
 }
