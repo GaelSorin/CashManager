@@ -6,19 +6,19 @@ import express from "express";
 import bodyParser from "body-parser";
 import syncDB from "./utils/sync.db";
 import http from "http";
-import Socket from "./class/socket.class";
+import { Server as SocketIOServer } from "socket.io";
 import swaggerUi from "swagger-ui-express";
 import swaggerJSDoc from "swagger-jsdoc";
-import WebSocket from "ws";
-import {AccountController} from "./controllers/account";
+import { AccountController } from "./controllers/account";
 
 require("dotenv").config();
 
-export const TPEs = new Map;
-const clientsTpe = new Map;
+export const TPEs = new Map();
+const clientsTpe = new Map();
 
 import swaggerOptions from "./swagger-conf";
 import Item from "./class/item.class";
+
 dotenv.config({
   path: ".env",
 });
@@ -44,65 +44,70 @@ app.use(cookieParser("secretcode"));
 
 app.use("/api", api);
 
-const wss = new WebSocket.Server({ server });
+const io = new SocketIOServer(server, {
+  cors: {
+    origin: ["http://localhost", "http://localhost:3000"],
+    methods: ["GET", "POST"],
+  },
+});
 
 const generateId = (): string => {
   return Math.random().toString(36).substr(2, 9);
 };
 
-wss.on("connection", (ws: WebSocket) => {
+io.on("connection", (socket) => {
+  console.log('A user connected:', socket.id);
 
-  ws.on('message', async (message: string) => {
-    try {
-      const data = JSON.parse(message);
-      if (data.type === 'message') {
-      } else if (data.type === 'ets-order') {
-        const cart = data.cart;
-        const tpeId = data.tpeId.tpeId;
-        const tpe = TPEs.get(tpeId);
-        const prices = cart.cartItems.map((itemQ: {item: Item, quantity: number}) => itemQ.item.price * itemQ.quantity);
-        if (tpe) {
-          clientsTpe.set(tpe, ws);
-          const totalPrice = prices.reduce((acc: any, price: any) => acc + price, 0);
-          tpe.send(JSON.stringify({ type: 'order', price: totalPrice }));
-        } else {
-          console.error(`TPE inconnu : ${tpeId}`);
-        }
-      } else if (data.type === 'new_tpeId') {
-        const tpeId = generateId();
-        
-        TPEs.set(tpeId, ws);
-        
-        ws.send(JSON.stringify({ type: "tpeId", tpeId }));
+  socket.on('howdy', (data) => {
+    console.log(`Message from ${socket.id}:`, data);
+    socket.emit('hello', 'world');
+  });
 
+  socket.on('ets-order', async (data) => {
+    const cart = data.cart;
+    const tpeId = data.tpeId.tpeId;
+    const tpe = TPEs.get(tpeId);
+    const prices = cart.cartItems.map((itemQ: { item: Item, quantity: number }) => itemQ.item.price * itemQ.quantity);
 
-        // ws.on('close', () => {
-        //   console.log(`Connexion WebSocket fermée pour le tpe ${tpeId}`);
-        //   // Supprimer le tpe du mapping lorsque la connexion est fermée
-        //   TPEs.delete(tpeId);
-        // });
-        // ws.on('error', (error) => {
-        //   console.error(`Erreur WebSocket pour le tpe ${tpeId}:`, error);
-        // });
-      } else if (data.type === 'payement') {
-        const tpe = TPEs.get(data.tpeId);
-        const client = clientsTpe.get(tpe);
+    if (tpe) {
+      clientsTpe.set(tpe, socket);
+      const totalPrice = prices.reduce((acc: any, price: any) => acc + price, 0);
+      tpe.emit('order', { type: 'order', price: totalPrice });
+    } else {
+      console.error(`TPE inconnu : ${tpeId}`);
+    }
+  });
 
-        // delete money from client account
-        const result = await AccountController.removeMoney(data.id, data.amount);
-        if (!result) {
-          client?.send(JSON.stringify({ type: 'payement-failed'}));
-        } else {
-          client?.send(JSON.stringify({ type: 'payement-success'}));
-        }
-      }
-    } catch (error) {
-      console.error(`Erreur lors de la lecture du message:`, error);
+  socket.on('new_tpeId', () => {
+    const tpeId = generateId();
+    TPEs.set(tpeId, socket);
+    socket.emit('tpeId', { type: "tpeId", tpeId });
+
+    socket.on('disconnect', () => {
+      console.log(`Connexion Socket.IO fermée pour le tpe ${tpeId}`);
+      TPEs.delete(tpeId);
+    });
+
+    socket.on('error', (error) => {
+      console.error(`Erreur Socket.IO pour le tpe ${tpeId}:`, error);
+    });
+  });
+
+  socket.on('payement', async (data) => {
+    const tpe = TPEs.get(data.tpeId);
+    const client = clientsTpe.get(tpe);
+
+    // Supprimer l'argent du compte client
+    const result = await AccountController.removeMoney(data.id, data.amount);
+    if (!result) {
+      client?.emit('payement-failed');
+    } else {
+      client?.emit('payement-success');
     }
   });
 });
 
-console.log("Serveur WebSocket en écoute sur le port 5000");
+console.log("Serveur Socket.IO en écoute sur le port 5000");
 
 server.listen(port, async () => {
   await syncDB();

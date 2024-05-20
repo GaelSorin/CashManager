@@ -2,14 +2,17 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, Button, StyleSheet } from 'react-native';
 import NfcManager, { NfcTech } from 'react-native-nfc-manager';
 import { Link } from 'react-router-native';
+import io from 'socket.io-client';
+
+const socket = io("http://adresse_de_votre_serveur_socket_io");
 
 export const NFCReaderPage = () => {
-  const [tagId, setTagId] = useState<string | null>(null); // Utilisation d'une chaîne de caractères pour stocker l'ID du tag
+  const [tagId, setTagId] = useState<string | null>(null);
 
   useEffect(() => {
     NfcManager.start();
     return () => {
-      NfcManager.unregisterTagEvent(); // Arrête la détection NFC
+      NfcManager.unregisterTagEvent();
     };
   }, []);
 
@@ -19,8 +22,9 @@ export const NFCReaderPage = () => {
       const tag = await NfcManager.getTag();
       if (tag) {
         console.log(tag);
+        //sendPayment(tag); // Envoyer l'ID du tag au serveur pour le paiement
       } else {
-        setTagId(null); // Réinitialisation de l'ID du tag s'il n'est pas trouvé
+        setTagId(null);
         console.log("No tag found");
       }
     } catch (error) {
@@ -30,6 +34,11 @@ export const NFCReaderPage = () => {
     }
   };
 
+  const sendPayment = (tagId: string) => {
+    // Envoyer un message de paiement au serveur via Socket.IO
+    socket.emit('payement', { tagId });
+  };
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Lecture de Tag NFC</Text>
@@ -37,7 +46,6 @@ export const NFCReaderPage = () => {
       {tagId && (
         <View style={styles.tagContainer}>
           <Text style={styles.tagText}>ID: {tagId}</Text>
-          {/* Insérez ici d'autres informations que vous souhaitez afficher sur le tag */}
         </View>
       )}
       <Link to="/" style={{ position: 'absolute', bottom: 20, left: 20 }}>

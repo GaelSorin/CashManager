@@ -6,6 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { Navbar } from "../../components/navbar";
 import { Item as ItemType } from "../../models/item";
 import { getAllItems } from "../../stores/items";
+import { Server, Socket } from "socket.io";
 
 export const Cart = () => {
     const {cartItems} = useContext(ShopContext);
@@ -19,6 +20,17 @@ export const Cart = () => {
             setItems(result.data as ItemType[]);
         }
     }
+
+    /*const io = new Server(3000);
+    io.on("connection", (socket) => {
+        //send message
+        socket.emit("hello", "world");
+
+        // receive message
+        socket.on("howdy", (arg)=> {
+            console.log(arg);
+        })
+    });*/
 
     //Total de la somme
     useEffect(() => {
@@ -36,6 +48,10 @@ export const Cart = () => {
     useEffect(() => {
         getItems();
     }, []);
+
+    const onCheckout = async () =>{
+        console.log("Subtotal" + totalAmount);
+    }
     
 
     return <div className="cart">
@@ -54,7 +70,7 @@ export const Cart = () => {
         <div className="checkout">
             <p>Subtotal: {totalAmount} €</p>
             <button onClick={ () => navigate("/shop")}> Continue Shopping </button>
-            <button> Checkout </button>
+            <button onClick={ onCheckout}> Checkout </button>
         </div>
         : <h1> Your cart is Empty</h1>}
     </div>;
