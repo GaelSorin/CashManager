@@ -11,7 +11,7 @@ import { io } from "socket.io-client";  // Import the socket.io-client
 const socket = io("ws://localhost:8001"); // Replace with your server address
 
 export const Cart = () => {
-    const { cartItems } = useContext(ShopContext);
+    const { cartItems, clearCart } = useContext(ShopContext);
     const [totalAmount, setTotalAmount] = useState<number>(0);
     const navigate = useNavigate();
     const [items, setItems] = useState<ItemType[]>([]);
@@ -62,6 +62,7 @@ export const Cart = () => {
                     <p>Subtotal: {totalAmount} €</p>
                     <button onClick={() => navigate("/shop")}>Continue Shopping</button>
                     <button onClick={onCheckout}>Checkout</button>
+                    <button onClick={clearCart}>Clear Cart</button>
                 </div>
             ) : (
                 <h1>Your cart is Empty</h1>

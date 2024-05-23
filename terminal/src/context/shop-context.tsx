@@ -1,48 +1,43 @@
-import React, { createContext, useEffect, useState } from "react";
+import React, { createContext, useState } from "react";
 import { PRODUCTS } from "../products";
 
-// Définir le type pour les éléments du panier
+// Define the type for cart items
 export interface CartItems {
   [key: string]: number;
 }
 
-// Interface pour les informations sur un produit
-interface Product {
-  id: number;
-  price: number;
-}
-
-// Définir le type pour le contexte
+// Define the type for the shop context
 interface ShopContextType {
   cartItems: CartItems;
   addToCart: (itemId: number) => void;
   updateCartItemCount: (newAmount: number, itemId: number) => void;
   removeFromCart: (itemId: number) => void;
   checkout: () => void;
+  clearCart: () => void;
 }
 
 const defaultShopContext: ShopContextType = {
-    cartItems: {},
-    addToCart: (_: number) => {},
-    updateCartItemCount: (_: number, itemId: number) => {},
-    removeFromCart: (_: number) => {},
-    checkout: () => {}
-
+  cartItems: {},
+  addToCart: (_: number) => {},
+  updateCartItemCount: (_: number, itemId: number) => {},
+  removeFromCart: (_: number) => {},
+  checkout: () => {},
+  clearCart: () => {},
 }
 
-// Créer le contexte
+// Create the context
 export const ShopContext = createContext<ShopContextType>(defaultShopContext);
 
-// Interface pour les propriétés passées au composant ShopContextProvider
+// Define the props for the ShopContextProvider
 interface ShopContextProviderProps {
   children: React.ReactNode;
 }
 
-// Composant ShopContextProvider
+// ShopContextProvider component
 export const ShopContextProvider: React.FC<ShopContextProviderProps> = ({ children }) => {
   const [cartItems, setCartItems] = useState<CartItems>(getDefaultCart());
 
-  // Fonction pour obtenir le panier par défaut
+  // Function to get the default cart
   function getDefaultCart(): CartItems {
     const cart: CartItems = {};
     for (const product of PRODUCTS) {
@@ -67,12 +62,17 @@ export const ShopContextProvider: React.FC<ShopContextProviderProps> = ({ childr
     setCartItems(getDefaultCart());
   };
 
+  const clearCart = () => {
+    setCartItems({});
+  };
+
   const contextValue: ShopContextType = {
     cartItems,
     addToCart,
     updateCartItemCount,
     removeFromCart,
     checkout,
+    clearCart,
   };
 
   return <ShopContext.Provider value={contextValue}>{children}</ShopContext.Provider>;
