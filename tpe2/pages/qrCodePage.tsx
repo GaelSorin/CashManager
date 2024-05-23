@@ -1,8 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 /* eslint-disable react-native/no-inline-styles */
-import React, {useEffect} from 'react';
-// import MCI from 'react-native-vector-icons/MaterialCommunityIcons';
-import {Box, Icon, Text} from '@react-native-material/core';
+import React, { useEffect, useState } from 'react';
+import { Box, Text } from '@react-native-material/core';
 import {
   Camera,
   useCodeScanner,
@@ -10,29 +9,46 @@ import {
   useCameraPermission,
 } from 'react-native-vision-camera';
 import { Link } from 'react-router-native';
+import io from 'socket.io-client';
+
+const socket = io("http://localhost:8001");
 
 interface QRProps {
   finishPayement: (id: string) => void;
 }
-export const QRCode = ({
-  finishPayement,
-}: QRProps) => {
+
+export const QRCode = ({ finishPayement }: QRProps) => {
+  const [scanned, setScanned] = useState(false);
   const device = useCameraDevice('back');
-  const {hasPermission, requestPermission} = useCameraPermission();
+  const { hasPermission, requestPermission } = useCameraPermission();
+
   const codeScanner = useCodeScanner({
     codeTypes: ['qr', 'ean-13'],
     onCodeScanned: codes => {
-      console.log(`Scanned ${codes.length} codes ! | `, codes[0].value);
-      finishPayement(codes[0].value ?? '');
+      const codeValue = codes[0]?.value ?? '';
+      console.log(`Scanned ${codes.length} codes ! | `, codeValue);
+      finishPayement(codeValue);
+      console.log("sendpayment : " + codeValue);
+      sendPayment(codeValue); // Envoyer le paiement via le socket
+      setScanned(true); // Mettre à jour l'état pour indiquer qu'un code a été scanné
     },
   });
-  console.log('device');
 
   useEffect(() => {
     if (!hasPermission) {
       requestPermission();
     }
   }, [hasPermission]);
+
+  const sendPayment = (codeValue: string) => {
+
+    const data = {
+      tpeId: 'tpe123',
+      id: codeValue,
+      amount: 50.0
+    }
+    socket.emit('payement', { codeValue });
+  };
 
   return (
     <Box
@@ -48,7 +64,7 @@ export const QRCode = ({
           justifyContent: 'center',
           alignItems: 'center',
         }}>
-        {device && (
+        {device && !scanned && (
           <Camera
             style={{width: '100%', height: '100%'}}
             device={device}
@@ -57,9 +73,12 @@ export const QRCode = ({
             enableZoomGesture
           />
         )}
+        {scanned && (
+          <Text style={{ fontSize: 24, color: 'green' }}>QR code scanné</Text>
+        )}
       </Box>
       <Link to="/" style={{ position: 'absolute', bottom: 20, left: 20 }}>
-        <Text style={{ fontSize: 24, color: 'blue' }}>{"Retour"}</Text>
+        <Text style={{ fontSize: 24, color: 'blue' }}>Retour</Text>
       </Link>
     </Box>
   );

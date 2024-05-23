@@ -4,7 +4,7 @@ import NfcManager, { NfcTech } from 'react-native-nfc-manager';
 import { Link } from 'react-router-native';
 import io from 'socket.io-client';
 
-const socket = io("http://adresse_de_votre_serveur_socket_io");
+const socket = io("http://localhost:8001");
 
 export const NFCReaderPage = () => {
   const [tagId, setTagId] = useState<string | null>(null);

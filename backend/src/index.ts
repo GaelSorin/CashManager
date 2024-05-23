@@ -26,7 +26,7 @@ dotenv.config({
 const swaggerSpec = swaggerJSDoc(swaggerOptions);
 
 const app = express();
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+//app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 const server = http.createServer(app);
 const port = parseInt(process.env.PORT!) || 5000;
 
@@ -44,11 +44,13 @@ app.use(cookieParser("secretcode"));
 
 app.use("/api", api);
 
+// Configure Socket.IO with CORS
 const io = new SocketIOServer(server, {
   cors: {
-    origin: ["http://localhost", "http://localhost:3000"],
+    origin: ["http://localhost:3000"],
     methods: ["GET", "POST"],
-  },
+    credentials: true
+  }
 });
 
 const generateId = (): string => {
@@ -64,15 +66,13 @@ io.on("connection", (socket) => {
   });
 
   socket.on('ets-order', async (data) => {
-    const cart = data.cart;
+    const price = data.price;
     const tpeId = data.tpeId.tpeId;
     const tpe = TPEs.get(tpeId);
-    const prices = cart.cartItems.map((itemQ: { item: Item, quantity: number }) => itemQ.item.price * itemQ.quantity);
 
     if (tpe) {
       clientsTpe.set(tpe, socket);
-      const totalPrice = prices.reduce((acc: any, price: any) => acc + price, 0);
-      tpe.emit('order', { type: 'order', price: totalPrice });
+      tpe.emit('order', { type: 'order', price: price });
     } else {
       console.error(`TPE inconnu : ${tpeId}`);
     }
@@ -94,16 +94,25 @@ io.on("connection", (socket) => {
   });
 
   socket.on('payement', async (data) => {
+    console.log("paiement en cours");
     const tpe = TPEs.get(data.tpeId);
     const client = clientsTpe.get(tpe);
 
     // Supprimer l'argent du compte client
     const result = await AccountController.removeMoney(data.id, data.amount);
     if (!result) {
+      console.log("payment failed");
       client?.emit('payement-failed');
     } else {
+      console.log("payment success")
       client?.emit('payement-success');
     }
+  });
+
+  // Handle checkout event
+  socket.on('checkout', (data) => {
+    console.log(`Checkout data received: totalAmount = ${data.totalAmount}`);
+    socket.emit('getcheckout', { totalAmount: data.totalAmount });
   });
 });
 

@@ -36,13 +36,13 @@ export default async function syncDB() {
         {
           name: "Ashen Chest",
           price: "150",
-          image: "https://static.wikia.nocookie.net/seaofthieves_gamepedia/images/1/19/Ashen_Captain%27s_Chest.png/revision/latest/scale-to-width-down/1200?cb=20220415014953",
+          image: "https://static.wikia.nocookie.net/seaofthieves_gamepedia/images/1/19/Ashen_Captain%27s_Chest.png",
           id_user: "00c7177b-3303-4223-ad58-d274a37a0d9c",
         },
         {
           name: "Rage Chest",
           price: "1000",
-          image: "https://static.wikia.nocookie.net/seaofthieves_gamepedia/images/6/65/Chest_of_Rage.png/revision/latest?cb=20211020180540",
+          image: "https://static.wikia.nocookie.net/seaofthieves_gamepedia/images/6/65/Chest_of_Rage.png",
           id_user: "00c7177b-3303-4223-ad58-d274a37a0d9c",
         },
         {
