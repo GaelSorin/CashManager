@@ -6,15 +6,15 @@ import express from "express";
 import bodyParser from "body-parser";
 import syncDB from "./utils/sync.db";
 import http from "http";
-import { Server as SocketIOServer } from "socket.io";
+import { Server as SocketIOServer, Socket } from "socket.io";
 import swaggerUi from "swagger-ui-express";
 import swaggerJSDoc from "swagger-jsdoc";
 import { AccountController } from "./controllers/account";
 
 require("dotenv").config();
 
-export const TPEs = new Map();
-const clientsTpe = new Map();
+export const TPEs = new Map<string, Socket>();
+const clientsTpe = new Map<Socket, Socket>();
 
 import swaggerOptions from "./swagger-conf";
 import Item from "./class/item.class";
@@ -26,7 +26,6 @@ dotenv.config({
 const swaggerSpec = swaggerJSDoc(swaggerOptions);
 
 const app = express();
-//app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 const server = http.createServer(app);
 const port = parseInt(process.env.PORT!) || 5000;
 
@@ -39,12 +38,9 @@ app.use(
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
-
 app.use(cookieParser("secretcode"));
-
 app.use("/api", api);
 
-// Configure Socket.IO with CORS
 const io = new SocketIOServer(server, {
   cors: {
     origin: ["http://localhost:3000"],
@@ -93,30 +89,44 @@ io.on("connection", (socket) => {
     });
   });
 
+  socket.on('remove_tpeId', () => {
+    TPEs.forEach((value, key) => {
+      if (value === socket) {
+        TPEs.delete(key);
+        console.log(`TPE ID supprimé : ${key}`);
+      }
+    });
+  });
+
   socket.on('payement', async (data) => {
     console.log("paiement en cours");
     const tpe = TPEs.get(data.tpeId);
-    const client = clientsTpe.get(tpe);
-
-    // Supprimer l'argent du compte client
-    const result = await AccountController.removeMoney(data.id, data.amount);
-    if (!result) {
-      console.log("payment failed");
-      client?.emit('payement-failed');
+    
+    if (tpe) {
+      const client = clientsTpe.get(tpe);
+  
+      if (client) {
+        const result = await AccountController.removeMoney(data.id, data.amount);
+        if (!result) {
+          console.log("payment failed");
+          client.emit('payement-failed');
+        } else {
+          console.log("payment success")
+          client.emit('payement-success');
+        }
+      } else {
+        console.error("Client not found for TPE:", tpe);
+      }
     } else {
-      console.log("payment success")
-      client?.emit('payement-success');
+      console.error("TPE not found for ID:", data.tpeId);
     }
   });
-
-  // Handle checkout event
+  
   socket.on('checkout', (data) => {
     console.log(`Checkout data received: totalAmount = ${data.totalAmount}`);
     socket.emit('getcheckout', { totalAmount: data.totalAmount });
   });
 });
-
-console.log("Serveur Socket.IO en écoute sur le port 5000");
 
 server.listen(port, async () => {
   await syncDB();

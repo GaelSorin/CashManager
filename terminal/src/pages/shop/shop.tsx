@@ -13,9 +13,7 @@ export const Shop = () => {
     const getItems = async () =>{
         const result = await getAllItems();
         if (result.status === "ok") {
-            console.log("ok item reçu")
             setItems(result.data as ItemType[]);
-            console.log(items);
         }
     }
 

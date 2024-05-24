@@ -8,8 +8,14 @@ import { Item as ItemType } from "../../models/item";
 import { getAllItems } from "../../stores/items";
 import { io } from "socket.io-client";  // Import the socket.io-client
 
-const socket = io("ws://localhost:8001"); // Replace with your server address
+const socket = io("ws://localhost:8001", {transports: ['websocket']}); // Replace with your server address
+socket.on('connect', () => {
+    console.log(`Connected to server with socket ID: ${socket.id}`);
+  });
 
+  socket.on('connect_error', (error) => {
+    console.error('Connection error:', error);
+  });
 export const Cart = () => {
     const { cartItems, clearCart } = useContext(ShopContext);
     const [totalAmount, setTotalAmount] = useState<number>(0);

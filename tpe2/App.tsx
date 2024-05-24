@@ -1,26 +1,58 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { QRCode } from './pages/qrCodePage';
 import { NativeRouter, Route, Routes } from "react-router-native";
 import { Home } from './pages/home';
 import { NFCReaderPage } from './pages/nfcPage';
 import { io } from 'socket.io-client';
+import { AppState, AppStateStatus } from 'react-native';
+
+const socket = io("ws://localhost:8001", {transports: ['websocket']}); // Replace with your server address
 
 function App(): React.JSX.Element {
+  const [totalAmount, setTotalAmount] = useState(0);
+
+  socket.on('connect', () => {
+    console.log(`Connected to server with socket ID: ${socket.id}`);
+  });
+
+  socket.on('connect_error', (error) => {
+    console.error('Connection error:', error);
+  });
+
+  socket.on('disconnect', (reason) => {
+    console.log('Disconnected from server:', reason);
+  });
+
+  socket.on('error', (error) => {
+    console.error('Socket error:', error);
+  });
+
   useEffect(() => {
-    const socket = io("http://localhost:3001"); // URL de votre serveur socket.io
 
-    // receive message from server
-    socket.on("hello", (arg: string) => {
-      console.log(arg);
-    });
+    const handleAppStateChange = (nextAppState: AppStateStatus) => {
+      if (nextAppState === 'active') {
+        const id = Math.random().toString(36).substr(2, 9);
+        console.log("generated id : " + id);
+        socket.emit('new_tpeId', id);
+      } else if (nextAppState.match(/inactive|background/)) {
+        console.log("remove");
+        socket.emit('remove_tpeId');
+      }
+    };
 
-    // send a message to the server
-    socket.emit("howdy", "stranger");
+    const subscription = AppState.addEventListener('change', handleAppStateChange);
 
     return () => {
+      console.log("bye");
+      subscription.remove();
       socket.disconnect();
     };
-  }, []);
+  }, [socket]);
+
+  socket.on('getcheckout', (data) => {
+    console.log("Received 'getcheckout' event:", data);
+    setTotalAmount(data.totalAmount);
+  });
 
   return (
     <NativeRouter>
