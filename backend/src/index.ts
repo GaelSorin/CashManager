@@ -124,7 +124,7 @@ io.on("connection", (socket) => {
   
   socket.on('checkout', (data) => {
     console.log(`Checkout data received: totalAmount = ${data.totalAmount}`);
-    socket.emit('getcheckout', { totalAmount: data.totalAmount });
+    io.emit('getcheckout', { totalAmount: data.totalAmount }); // Emit to all connected clients
   });
 });
 

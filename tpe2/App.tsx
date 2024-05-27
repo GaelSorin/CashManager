@@ -6,7 +6,7 @@ import { NFCReaderPage } from './pages/nfcPage';
 import { io } from 'socket.io-client';
 import { AppState, AppStateStatus } from 'react-native';
 
-const socket = io("ws://localhost:8001", {transports: ['websocket']}); // Replace with your server address
+const socket = io("ws://localhost:8001", {transports: ['websocket']});
 
 function App(): React.JSX.Element {
   const [totalAmount, setTotalAmount] = useState(0);
@@ -28,7 +28,6 @@ function App(): React.JSX.Element {
   });
 
   useEffect(() => {
-
     const handleAppStateChange = (nextAppState: AppStateStatus) => {
       if (nextAppState === 'active') {
         const id = Math.random().toString(36).substr(2, 9);
@@ -42,17 +41,17 @@ function App(): React.JSX.Element {
 
     const subscription = AppState.addEventListener('change', handleAppStateChange);
 
+    socket.on('getcheckout', (data) => {
+      console.log("Received 'getcheckout' event:", data);
+      setTotalAmount(data.totalAmount);
+    });
+
     return () => {
       console.log("bye");
       subscription.remove();
       socket.disconnect();
     };
   }, [socket]);
-
-  socket.on('getcheckout', (data) => {
-    console.log("Received 'getcheckout' event:", data);
-    setTotalAmount(data.totalAmount);
-  });
 
   return (
     <NativeRouter>
