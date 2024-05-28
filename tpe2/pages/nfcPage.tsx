@@ -1,13 +1,15 @@
+// NFCReaderPage.tsx
 import React, { useEffect, useState } from 'react';
 import { View, Text, Button, StyleSheet } from 'react-native';
 import NfcManager, { NfcTech } from 'react-native-nfc-manager';
 import { Link } from 'react-router-native';
-import io from 'socket.io-client';
-
-const socket = io("http://localhost:8001");
+import { useTotalAmount } from '../context/totalAmountContext';
+import { useSocket } from '../context/socketContext';
 
 export const NFCReaderPage = () => {
   const [tagId, setTagId] = useState<string | null>(null);
+  const { totalAmount } = useTotalAmount();
+  const socket = useSocket();
 
   useEffect(() => {
     NfcManager.start();
@@ -20,12 +22,13 @@ export const NFCReaderPage = () => {
     try {
       await NfcManager.requestTechnology(NfcTech.Ndef);
       const tag = await NfcManager.getTag();
-      if (tag) {
+      if (tag && tag.id) {
         console.log(tag);
-        //sendPayment(tag); // Envoyer l'ID du tag au serveur pour le paiement
+        setTagId(tag.id);
+        sendPayment(tag.id);
       } else {
         setTagId(null);
-        console.log("No tag found");
+        console.log("No tag found or tag ID is undefined");
       }
     } catch (error) {
       console.warn("Error reading tag:", error);
@@ -35,8 +38,9 @@ export const NFCReaderPage = () => {
   };
 
   const sendPayment = (tagId: string) => {
-    // Envoyer un message de paiement au serveur via Socket.IO
-    socket.emit('payement', { tagId });
+    if (socket) {
+      socket.emit('payement', { tagId, totalAmount });
+    }
   };
 
   return (

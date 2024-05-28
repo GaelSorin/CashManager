@@ -1,33 +1,36 @@
-import React, { useEffect, useState } from 'react';
+// App.tsx
+import React, { useEffect } from 'react';
 import { QRCode } from './pages/qrCodePage';
 import { NativeRouter, Route, Routes } from "react-router-native";
 import { Home } from './pages/home';
 import { NFCReaderPage } from './pages/nfcPage';
-import { io } from 'socket.io-client';
 import { AppState, AppStateStatus } from 'react-native';
-
-const socket = io("ws://localhost:8001", {transports: ['websocket']});
+import { TotalAmountProvider, useTotalAmount } from './context/totalAmountContext';
+import { SocketProvider, useSocket } from './context/socketContext';
 
 function App(): React.JSX.Element {
-  const [totalAmount, setTotalAmount] = useState(0);
-
-  socket.on('connect', () => {
-    console.log(`Connected to server with socket ID: ${socket.id}`);
-  });
-
-  socket.on('connect_error', (error) => {
-    console.error('Connection error:', error);
-  });
-
-  socket.on('disconnect', (reason) => {
-    console.log('Disconnected from server:', reason);
-  });
-
-  socket.on('error', (error) => {
-    console.error('Socket error:', error);
-  });
+  const { setTotalAmount } = useTotalAmount();
+  const socket = useSocket();
 
   useEffect(() => {
+    if (!socket) return;
+
+    socket.on('connect', () => {
+      console.log(`Connected to server with socket ID: ${socket.id}`);
+    });
+
+    socket.on('connect_error', (error) => {
+      console.error('Connection error:', error);
+    });
+
+    socket.on('disconnect', (reason) => {
+      console.log('Disconnected from server:', reason);
+    });
+
+    socket.on('error', (error) => {
+      console.error('Socket error:', error);
+    });
+
     const handleAppStateChange = (nextAppState: AppStateStatus) => {
       if (nextAppState === 'active') {
         const id = Math.random().toString(36).substr(2, 9);
@@ -42,7 +45,7 @@ function App(): React.JSX.Element {
     const subscription = AppState.addEventListener('change', handleAppStateChange);
 
     socket.on('getcheckout', (data) => {
-      console.log("Received 'getcheckout' event:", data);
+      console.log("Received 'getcheckout' event:", data.totalAmount);
       setTotalAmount(data.totalAmount);
     });
 
@@ -51,7 +54,7 @@ function App(): React.JSX.Element {
       subscription.remove();
       socket.disconnect();
     };
-  }, [socket]);
+  }, [socket, setTotalAmount]);
 
   return (
     <NativeRouter>
@@ -64,4 +67,10 @@ function App(): React.JSX.Element {
   );
 }
 
-export default App;
+export default () => (
+  <SocketProvider>
+    <TotalAmountProvider>
+      <App />
+    </TotalAmountProvider>
+  </SocketProvider>
+);

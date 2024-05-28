@@ -1,5 +1,4 @@
-/* eslint-disable react-hooks/exhaustive-deps */
-/* eslint-disable react-native/no-inline-styles */
+// qrCodePage.tsx
 import React, { useEffect, useState } from 'react';
 import { Box, Text } from '@react-native-material/core';
 import {
@@ -9,9 +8,8 @@ import {
   useCameraPermission,
 } from 'react-native-vision-camera';
 import { Link } from 'react-router-native';
-import io from 'socket.io-client';
-
-const socket = io("http://localhost:8001");
+import { useSocket } from '../context/socketContext';
+import { useTotalAmount } from '../context/totalAmountContext';
 
 interface QRProps {
   finishPayement: (id: string) => void;
@@ -21,6 +19,8 @@ export const QRCode = ({ finishPayement }: QRProps) => {
   const [scanned, setScanned] = useState(false);
   const device = useCameraDevice('back');
   const { hasPermission, requestPermission } = useCameraPermission();
+  const socket = useSocket();
+  const { totalAmount } = useTotalAmount();
 
   const codeScanner = useCodeScanner({
     codeTypes: ['qr', 'ean-13'],
@@ -41,13 +41,9 @@ export const QRCode = ({ finishPayement }: QRProps) => {
   }, [hasPermission]);
 
   const sendPayment = (codeValue: string) => {
-
-    const data = {
-      tpeId: 'tpe123',
-      id: codeValue,
-      amount: 50.0
+    if (socket) {
+      socket.emit('payement', { codeValue, totalAmount });
     }
-    socket.emit('payement', { codeValue });
   };
 
   return (
