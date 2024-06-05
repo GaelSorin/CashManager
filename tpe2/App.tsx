@@ -14,47 +14,47 @@ function App(): React.JSX.Element {
 
   useEffect(() => {
     if (!socket) return;
-
+  
     socket.on('connect', () => {
       console.log(`Connected to server with socket ID: ${socket.id}`);
+      socket.emit('new_tpeId', socket.id);
     });
-
+  
     socket.on('connect_error', (error) => {
       console.error('Connection error:', error);
     });
-
+  
     socket.on('disconnect', (reason) => {
       console.log('Disconnected from server:', reason);
     });
-
+  
     socket.on('error', (error) => {
       console.error('Socket error:', error);
     });
-
+  
     const handleAppStateChange = (nextAppState: AppStateStatus) => {
       if (nextAppState === 'active') {
-        const id = Math.random().toString(36).substr(2, 9);
-        console.log("generated id : " + id);
-        socket.emit('new_tpeId', id);
+        //console.log(`TPE ID : ${socket.id}`)
+        //socket.emit('new_tpeId', socket.id); // Send the ID to the server
       } else if (nextAppState.match(/inactive|background/)) {
         console.log("remove");
         socket.emit('remove_tpeId');
       }
     };
-
+  
     const subscription = AppState.addEventListener('change', handleAppStateChange);
-
+  
     socket.on('getcheckout', (data) => {
       console.log("Received 'getcheckout' event:", data.totalAmount);
       setTotalAmount(data.totalAmount);
     });
-
+  
     return () => {
       console.log("bye");
       subscription.remove();
       socket.disconnect();
     };
-  }, [socket, setTotalAmount]);
+  }, [socket, setTotalAmount]);  
 
   return (
     <NativeRouter>

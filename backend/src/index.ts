@@ -14,7 +14,7 @@ import { AccountController } from "./controllers/account";
 require("dotenv").config();
 
 export const TPEs = new Map<string, Socket>();
-const clientsTpe = new Map<Socket, Socket>();
+const clientsTpe = new Map<string, Socket>();
 
 import swaggerOptions from "./swagger-conf";
 import Item from "./class/item.class";
@@ -49,10 +49,6 @@ const io = new SocketIOServer(server, {
   }
 });
 
-const generateId = (): string => {
-  return Math.random().toString(36).substr(2, 9);
-};
-
 io.on("connection", (socket) => {
   console.log('A user connected:', socket.id);
 
@@ -63,19 +59,20 @@ io.on("connection", (socket) => {
 
   socket.on('ets-order', async (data) => {
     const price = data.price;
-    const tpeId = data.tpeId.tpeId;
+    const tpeId = data.tpeId;
     const tpe = TPEs.get(tpeId);
 
     if (tpe) {
-      clientsTpe.set(tpe, socket);
+      const clientId = socket.id; // Assuming client socket id is used as clientId
+      clientsTpe.set(clientId, socket);
       tpe.emit('order', { type: 'order', price: price });
     } else {
       console.error(`TPE inconnu : ${tpeId}`);
     }
   });
 
-  socket.on('new_tpeId', () => {
-    const tpeId = generateId();
+  socket.on('new_tpeId', (tpeId) => {
+    console.log(`Registering new TPE with ID: ${tpeId}`);
     TPEs.set(tpeId, socket);
     socket.emit('tpeId', { type: "tpeId", tpeId });
 
@@ -86,6 +83,20 @@ io.on("connection", (socket) => {
 
     socket.on('error', (error) => {
       console.error(`Erreur Socket.IO pour le tpe ${tpeId}:`, error);
+    });
+  });
+
+  socket.on('new_clientId', (clientId) => {
+    console.log(`Registering new client with ID: ${clientId}`);
+    clientsTpe.set(clientId, socket);
+
+    socket.on('disconnect', () => {
+      console.log(`Connexion Socket.IO fermée pour le client ${clientId}`);
+      clientsTpe.delete(clientId);
+    });
+
+    socket.on('error', (error) => {
+      console.error(`Erreur Socket.IO pour le client ${clientId}:`, error);
     });
   });
 
@@ -103,7 +114,7 @@ io.on("connection", (socket) => {
     const tpe = TPEs.get(data.tpeId);
     
     if (tpe) {
-      const client = clientsTpe.get(tpe);
+      const client = clientsTpe.get(data.clientId);
   
       if (client) {
         const result = await AccountController.removeMoney(data.id, data.amount);
