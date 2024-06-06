@@ -80,4 +80,30 @@
   cursor: pointer;
 }
 
+.success {
+  text-align: center;
+  margin-top: 20px;
+  font-size: 24px;
+  color: green;
+}
+
+.failed {
+  text-align: center;
+  margin-top: 20px;
+  font-size: 24px;
+  color: red;
+}
+
+.processing {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.processing img {
+  width: 200px;
+  height: auto;
+  margin-top: 20px;
+}
+
+
 @import url('https://fonts.googleapis.com/css2?family=Pirata+One&display=swap');

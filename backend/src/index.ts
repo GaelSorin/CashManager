@@ -123,7 +123,8 @@ io.on("connection", (socket) => {
           console.log("payment failed");
           client.emit('payement-failed');
         } else {
-          console.log("payment success")
+          console.log("payment success");
+          //socket.emit('payement-success');
           client.emit('payement-success');
         }
       } else {
