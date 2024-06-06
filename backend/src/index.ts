@@ -111,13 +111,14 @@ io.on("connection", (socket) => {
 
   socket.on('payement', async (data) => {
     console.log("paiement en cours");
-    const tpe = TPEs.get(data.tpeId);
+    const tpe = TPEs.get(socket.id);
     
     if (tpe) {
-      const client = clientsTpe.get(data.clientId);
+      console.log("Tpe passed");
+      const client = clientsTpe.get(data.clientID);
   
       if (client) {
-        const result = await AccountController.removeMoney(data.id, data.amount);
+        const result = await AccountController.removeMoney(data.codeValue, data.totalAmount);
         if (!result) {
           console.log("payment failed");
           client.emit('payement-failed');
@@ -134,8 +135,9 @@ io.on("connection", (socket) => {
   });
   
   socket.on('checkout', (data) => {
+    console.log("socket client id : "+ socket.id);
     console.log(`Checkout data received: totalAmount = ${data.totalAmount}`);
-    io.emit('getcheckout', { totalAmount: data.totalAmount }); // Emit to all connected clients
+    io.emit('getcheckout', { totalAmount: data.totalAmount, clientId: socket.id }); // Emit to all connected clients
   });
 });
 

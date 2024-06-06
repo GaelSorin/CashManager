@@ -13,9 +13,10 @@ import { useTotalAmount } from '../context/totalAmountContext';
 
 interface QRProps {
   finishPayement: (id: string) => void;
+  clientID: string
 }
 
-export const QRCode = ({ finishPayement }: QRProps) => {
+export const QRCode = ({ finishPayement, clientID }: QRProps) => {
   const [scanned, setScanned] = useState(false);
   const device = useCameraDevice('back');
   const { hasPermission, requestPermission } = useCameraPermission();
@@ -42,7 +43,8 @@ export const QRCode = ({ finishPayement }: QRProps) => {
 
   const sendPayment = (codeValue: string) => {
     if (socket) {
-      socket.emit('payement', { codeValue, totalAmount });
+      console.log("client id qrcode :"+ clientID);
+      socket.emit('payement', { codeValue, totalAmount, clientID });
     }
   };
 

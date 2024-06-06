@@ -1,5 +1,5 @@
 // App.tsx
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { QRCode } from './pages/qrCodePage';
 import { NativeRouter, Route, Routes } from "react-router-native";
 import { Home } from './pages/home';
@@ -11,6 +11,7 @@ import { SocketProvider, useSocket } from './context/socketContext';
 function App(): React.JSX.Element {
   const { setTotalAmount } = useTotalAmount();
   const socket = useSocket();
+  const [clientID, setClientID] = useState<string>("");
 
   useEffect(() => {
     if (!socket) return;
@@ -46,6 +47,8 @@ function App(): React.JSX.Element {
   
     socket.on('getcheckout', (data) => {
       console.log("Received 'getcheckout' event:", data.totalAmount);
+      console.log("client id : " + data.clientId)
+      setClientID(data.clientId);
       setTotalAmount(data.totalAmount);
     });
   
@@ -60,7 +63,7 @@ function App(): React.JSX.Element {
     <NativeRouter>
       <Routes>
         <Route path='/' element={<Home />} />
-        <Route path='/QRCode' element={<QRCode finishPayement={function (id: string): void {}} />} />
+        <Route path='/QRCode' element={<QRCode clientID={clientID} finishPayement={function (id: string): void {}} />} />
         <Route path='/NFC' element={<NFCReaderPage />} />
       </Routes>
     </NativeRouter>
