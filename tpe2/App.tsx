@@ -38,8 +38,8 @@ function App(): React.JSX.Element {
         //console.log(`TPE ID : ${socket.id}`)
         //socket.emit('new_tpeId', socket.id); // Send the ID to the server
       } else if (nextAppState.match(/inactive|background/)) {
-        console.log("remove");
-        socket.emit('remove_tpeId');
+        //console.log("remove");
+        //socket.emit('remove_tpeId');
       }
     };
   
@@ -63,8 +63,8 @@ function App(): React.JSX.Element {
     <NativeRouter>
       <Routes>
         <Route path='/' element={<Home />} />
-        <Route path='/QRCode' element={<QRCode clientID={clientID} finishPayement={function (id: string): void {}} />} />
-        <Route path='/NFC' element={<NFCReaderPage />} />
+        <Route path='/QRCode' element={<QRCode clientID={clientID} />} />
+        <Route path='/NFC' element={<NFCReaderPage clientID={clientID}/>} />
       </Routes>
     </NativeRouter>
   );

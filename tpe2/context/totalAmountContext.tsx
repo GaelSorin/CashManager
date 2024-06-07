@@ -4,6 +4,7 @@ import React, { createContext, useContext, useState, ReactNode } from 'react';
 interface TotalAmountContextType {
   totalAmount: number;
   setTotalAmount: (amount: number) => void;
+  resetTotalAmount: () => void;  // Ajout de la fonction reset
 }
 
 const TotalAmountContext = createContext<TotalAmountContextType | undefined>(undefined);
@@ -15,8 +16,12 @@ interface TotalAmountProviderProps {
 export const TotalAmountProvider: React.FC<TotalAmountProviderProps> = ({ children }) => {
   const [totalAmount, setTotalAmount] = useState(0);
 
+  const resetTotalAmount = () => {
+    setTotalAmount(0);
+  };
+
   return (
-    <TotalAmountContext.Provider value={{ totalAmount, setTotalAmount }}>
+    <TotalAmountContext.Provider value={{ totalAmount, setTotalAmount, resetTotalAmount }}>
       {children}
     </TotalAmountContext.Provider>
   );

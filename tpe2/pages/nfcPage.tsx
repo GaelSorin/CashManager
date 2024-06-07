@@ -2,14 +2,19 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, Button, StyleSheet } from 'react-native';
 import NfcManager, { NfcTech } from 'react-native-nfc-manager';
-import { Link } from 'react-router-native';
+import { useNavigate } from 'react-router-native'; // Importer useNavigate
 import { useTotalAmount } from '../context/totalAmountContext';
 import { useSocket } from '../context/socketContext';
 
-export const NFCReaderPage = () => {
+interface NFCProps {
+  clientID: string;
+}
+
+export const NFCReaderPage = ({ clientID }: NFCProps) => {
   const [tagId, setTagId] = useState<string | null>(null);
-  const { totalAmount } = useTotalAmount();
+  const { totalAmount, resetTotalAmount } = useTotalAmount();
   const socket = useSocket();
+  const navigate = useNavigate(); // Utiliser useNavigate pour la navigation
 
   useEffect(() => {
     NfcManager.start();
@@ -37,24 +42,30 @@ export const NFCReaderPage = () => {
     }
   };
 
-  const sendPayment = (tagId: string) => {
+  const sendPayment = (codeValue: string) => {
     if (socket) {
-      socket.emit('payement', { tagId, totalAmount });
+      console.log("paiement : " + codeValue + "; " + totalAmount + "; " + clientID);
+      socket.emit('payement', { codeValue, totalAmount, clientID });
     }
+  };
+
+  const handleBack = () => {
+    resetTotalAmount(); // Réinitialiser le montant total
+    navigate('/'); // Naviguer vers la page d'accueil
   };
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Lecture de Tag NFC</Text>
-      <Button title="Lire le tag NFC" onPress={readTag} />
+      {!tagId && (
+        <Button title="Lire le tag NFC" onPress={readTag} />
+      )}
       {tagId && (
         <View style={styles.tagContainer}>
           <Text style={styles.tagText}>ID: {tagId}</Text>
         </View>
       )}
-      <Link to="/" style={{ position: 'absolute', bottom: 20, left: 20 }}>
-        <Text style={{ fontSize: 24, color: 'blue' }}>{"Retour"}</Text>
-      </Link>
+      <Text onPress={handleBack} style={{ position: 'absolute', bottom: 20, left: 20, fontSize: 24, color: 'blue' }}>Retour</Text>
     </View>
   );
 };
