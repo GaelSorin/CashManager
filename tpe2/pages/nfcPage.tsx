@@ -1,4 +1,3 @@
-// NFCReaderPage.tsx
 import React, { useEffect, useState } from 'react';
 import { View, Text, Button, StyleSheet } from 'react-native';
 import NfcManager, { NfcTech } from 'react-native-nfc-manager';

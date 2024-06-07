@@ -1,4 +1,3 @@
-// qrCodePage.tsx
 import React, { useEffect, useState } from 'react';
 import { Box, Text } from '@react-native-material/core';
 import { Camera, useCodeScanner, useCameraDevice, useCameraPermission } from 'react-native-vision-camera';
