@@ -22,6 +22,14 @@ npm i
 npm run build
 npx cap run android
 ```
+
+si vous voulez run sur navigateur : 
+
+```
+cd terminal
+npm i
+npm run start
+```
 ___
 
 ### App tpe :
@@ -29,7 +37,6 @@ Connecter le téléphone en usb debug dev sur le pc :
 ```
 cd tpe2
 npm i
-adb reverse tcp:8081 tcp:8081
 adb reverse tcp:8001 tcp:8001
 npm run android
 ```
